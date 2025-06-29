@@ -5,6 +5,7 @@ import "sync"
 type InMemoryPlayerStore struct {
 	scores   map[string]int
 	winCalls []string
+	league   []Player
 }
 
 var mu sync.Mutex
@@ -20,6 +21,15 @@ func (s *InMemoryPlayerStore) RecordWin(name string) {
 	s.scores[name]++
 }
 
+// in_memory_player_store.go
+func (i *InMemoryPlayerStore) GetLeague() []Player {
+	var league []Player
+	for name, wins := range i.scores {
+		league = append(league, Player{name, wins})
+	}
+	return league
+}
+
 func NewInMemoryPlayerStore() *InMemoryPlayerStore {
-	return &InMemoryPlayerStore{map[string]int{}, []string{}}
+	return &InMemoryPlayerStore{map[string]int{}, []string{}, []Player{}}
 }
