@@ -9,10 +9,12 @@ import (
 )
 
 func TestRecordWinsAndRetrieveThem(t *testing.T) {
-	store := NewInMemoryPlayerStore()
+	db, cleandb := createTempFile(t, "[]")
+	defer cleandb()
+	store, err := NewFsPlayerStore(db)
 	server := NewPlayerServer(store)
 	player := "Sonu"
-
+	assert.NoError(t, err)
 	server.ServeHTTP(httptest.NewRecorder(), NewPostWinReq(player))
 	server.ServeHTTP(httptest.NewRecorder(), NewPostWinReq(player))
 	server.ServeHTTP(httptest.NewRecorder(), NewPostWinReq(player))
