@@ -1,4 +1,4 @@
-package main
+package poker
 
 import (
 	"encoding/json"
@@ -11,6 +11,22 @@ import (
 type FsPlayerStore struct {
 	db     *json.Encoder
 	league League
+}
+
+func FsPlayerStoreFromFile(path string) (*FsPlayerStore, func(), error) {
+	db, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, 0666)
+
+	if err != nil {
+		return nil, nil, fmt.Errorf("problem opening %s, %v", path, err)
+	}
+	closeFunc := func() {
+		db.Close()
+	}
+	store, err := NewFsPlayerStore(db)
+	if err != nil {
+		return nil, nil, fmt.Errorf("problem creating fs player store %v", err)
+	}
+	return store, closeFunc, nil
 }
 
 func NewFsPlayerStore(file *os.File) (*FsPlayerStore, error) {
@@ -50,7 +66,6 @@ func (f *FsPlayerStore) GetLeague() League {
 }
 
 func (f *FsPlayerStore) GetPlayerScore(name string) int {
-	fmt.Print(f.league.Find(name))
 	player := f.league.Find(name)
 	if player != nil {
 		return player.Wins
